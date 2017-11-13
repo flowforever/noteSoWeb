@@ -1,0 +1,22 @@
+{
+  "extends": "eslint-config-egg",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "rules": {
+    // enable additional rules
+    "indent": ["error", 4 , {"SwitchCase": 1}],
+
+    "prefer-const": "off",
+
+    "no-trailing-spaces": "off",
+
+    "object-curly-spacing": ["error", "never"],
+    "react/jsx-uses-react": "error",
+    "react/jsx-uses-vars": "error"
+  }
+}

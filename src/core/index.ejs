@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<%
+var options = htmlWebpackPlugin.options;
+%>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= options.title %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+</head>
+<body>
+<div id="appRoot">
+
+</div>
+<% for(let scriptFile of options.js){ %>
+<script src="<%= options.serverPath + scriptFile %>"></script>
+<% } %>
+</body>
+</html>

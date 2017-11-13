@@ -1,0 +1,14 @@
+.ant-helper-ActionBar {
+
+  > .ant-btn, > button {
+    margin-right: 12px;
+
+    &.pull-left {
+      margin-right: 12px;
+    }
+
+    &.pull-right {
+      margin-left: 12px;
+    }
+  }
+}
