@@ -5,9 +5,10 @@ import $ from 'jquery';
 import 'antd/dist/antd.less';
 import '../core/styles/helper.scss';
 import {Modal} from 'antd';
+import {routes} from "./routes";
 
 
-window.addEventListener("unhandledrejection", function (event, promise) {
+window.addEventListener('unhandledrejection', function (event, promise) {
     // handle error here, for example log
     Modal.error({
         content: <div>

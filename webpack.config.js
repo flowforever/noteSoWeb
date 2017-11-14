@@ -31,7 +31,7 @@ let pageEntries = {};
 
 appNameList.forEach(appName => {
     let APP_DIR = path.resolve(CLIENT_SRC_DIR, `${appName}_app`);
-    let pageList =  glob.sync(`pages/**/*Page.js`, {
+    let pageList = glob.sync(`pages/**/*Page.js`, {
         cwd: APP_DIR
     });
     appPageChunkNameMaps[appName] = [];
@@ -39,19 +39,19 @@ appNameList.forEach(appName => {
         '/** Please dont update this file.*/',
         'export const pageLoader = {};'
     ];
-    pageList.forEach(pageFileName=> {
+    pageList.forEach(pageFileName => {
         let pageName = pageFileName.replace(/^pages(\\|\/)/, '').replace(/\.js$/, '');
         let pageMethodName = _.upperFirst(pageName.replace(/\\|\//g, ''));
-        
+
         pageIndexFileContentArr.push(`export const get${pageMethodName} = pageLoader.get${pageMethodName}= ()=> import("./${pageName}" /* webpackChunkName: "${appName}/pages/${pageName}" */).then(mod=> mod["default"]);`);
-        let pageChunkName = `${appName}/${pageFileName}`.replace(/\.js$/,'');
+        let pageChunkName = `${appName}/${pageFileName}`.replace(/\.js$/, '');
         appPageChunkNameMaps[appName].push(pageChunkName);
-        pageEntries[ pageChunkName ] = `./src/${appName}_app/${pageFileName}`;
-        
+        pageEntries[pageChunkName] = `./src/${appName}_app/${pageFileName}`;
+
     });
     pageIndexFileContentArr.push('export const getPageByName = (name)=> pageLoader["get"+name]();');
     fs.writeFileSync(path.resolve(APP_DIR, 'pages/index.js'), pageIndexFileContentArr.join('\n\n'), 'utf8');
-    
+
 });
 
 let appEntries = (function () {
@@ -65,6 +65,7 @@ let appEntries = (function () {
 })();
 
 const isProductionMode = process.env.NODE_ENV === 'production';
+console.log(`BuildMode`, isProductionMode? 'production': 'development');
 
 let devJsList = [];
 
@@ -99,7 +100,7 @@ module.exports = {
                         plugins: [
                             "transform-class-properties",
                             "transform-decorators-legacy",
-                            ["import", { "libraryName": "antd" }]
+                            ["import", {"libraryName": "antd"}]
                         ]
                     }
                 }
@@ -135,7 +136,7 @@ module.exports = {
         ]
     }
     , plugins: function () {
-        
+
         let plugins = [
             new webpack.DefinePlugin({
                 'process.env': {
@@ -143,12 +144,12 @@ module.exports = {
                 },
             })
         ];
-        
+
         if (isProductionMode) {
             plugins.push(new webpack.optimize.UglifyJsPlugin());
         }
-        
-        _.forEach(appNameList, appName=> {
+
+        _.forEach(appNameList, appName => {
             let appChunkName = appChunkNameMaps[appName];
             let appPageChunkNames = appChunkNameMaps[appName];
             plugins.push(
@@ -158,22 +159,22 @@ module.exports = {
                 })
             );
         });
-        
+
         let htmlPlugins = function () {
             let plugins = [];
-            
+
             appNameList.forEach(appName => {
                 let preLoadJsList = [
                     `/${appName}/common.js`,
                     `/${appName}/main.js`
                 ];
-                
+
                 let homePageChunkName = `/${appName}/pages/HomePage`;
-                if(appPageChunkNameMaps[appName].indexOf()) {
-                    preLoadJsList.push(`${homePageChunkName}.js`);
+                if (appPageChunkNameMaps[appName].indexOf()) {
+                    //preLoadJsList.push(`${homePageChunkName}.js`);
                 }
-                
-                let jsFiles = devJsList.concat(preLoadJsList.map(f => `/build${f}?v=${VERSION_HASH}`)).map(f=> f.replace(/\s/g, ''));
+
+                let jsFiles = devJsList.concat(preLoadJsList.map(f => `/build${f}?v=${VERSION_HASH}`)).map(f => f.replace(/\s/g, ''));
                 plugins.push(new HtmlWebpackPlugin({
                     filename: `${appName}/index.html`,
                     template: 'src/core/index.ejs',
@@ -183,12 +184,12 @@ module.exports = {
                     serverPath: ''
                 }));
             });
-            
+
             return plugins;
         }();
-        
+
         plugins = plugins.concat(htmlPlugins);
-        
+
         return plugins;
     }()
     , devServer: {
@@ -200,5 +201,22 @@ module.exports = {
             aggregateTimeout: 100,
             poll: 300
         },
+        proxy: {
+            "/api": {
+                target: "http://localhost:7001"
+            }
+        },
+        setup(app){
+            app.use(function(req, res, next) {
+                if(
+                    req.path.indexOf('/build') === 0
+                    || req.path.indexOf('/api') === 0
+                ) {
+                    return next();
+                }
+
+                res.sendFile(path.resolve('build/note/index.html'));
+            });
+        }
     }
 };
