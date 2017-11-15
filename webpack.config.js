@@ -203,7 +203,7 @@ module.exports = {
         },
         proxy: {
             "/api": {
-                target: "http://localhost:7001"
+                target: "http://note.so:7001"
             }
         },
         setup(app){
