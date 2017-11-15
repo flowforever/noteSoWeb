@@ -64,7 +64,7 @@ export default class EditorPage extends React.Component {
     }
 
     getHash(props = this.props) {
-        return props.location.pathname.replace('/', '');
+        return decodeURIComponent(props.location.pathname.replace('/', ''));
     }
 
     render() {
